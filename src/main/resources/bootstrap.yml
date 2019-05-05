@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ycwl-pet-server
+  profiles:
+    active: @env@
+  cloud:
+    config:
+      uri: http://www.glove1573.cn:8777
+
