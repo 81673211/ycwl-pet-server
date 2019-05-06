@@ -1,11 +1,7 @@
 package com.fred.ycwl.pet.server.controller;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +15,6 @@ import com.fred.ycwl.common.exception.BusinessException;
 import com.fred.ycwl.common.web.Response;
 import com.fred.ycwl.common.web.ResponseCode;
 import com.fred.ycwl.pet.server.controller.request.PetCategoryListRequest;
-import com.fred.ycwl.pet.server.controller.response.PetCategoryListView;
 import com.fred.ycwl.pet.server.domain.bo.PetCategoryListParam;
 import com.fred.ycwl.pet.server.domain.po.PetCategory;
 import com.fred.ycwl.pet.server.service.PetCategoryService;
@@ -41,25 +36,15 @@ public class PetCategoryController {
     private PetCategoryService petCategoryService;
 
     @GetMapping("/list")
-    public Response<List<PetCategoryListView>> list(
-            @Validated PetCategoryListRequest request, BindingResult result)
-            throws InvocationTargetException, IllegalAccessException {
+    public Response<List<PetCategory>> list(
+            @Validated PetCategoryListRequest request, BindingResult result) {
 
         if (result.hasErrors()) {
             LOGGER.warn(result.getAllErrors().get(0).getDefaultMessage());
             throw new BusinessException(ResponseCode.ERROR_400);
         }
         PetCategoryListParam listParam = new PetCategoryListParam();
-        BeanUtils.copyProperties(listParam, request);
-        List<PetCategory> petCategories = petCategoryService.list(listParam);
-        List<PetCategoryListView> views = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(petCategories)) {
-            for (PetCategory petCategory : petCategories) {
-                PetCategoryListView view = new PetCategoryListView();
-                BeanUtils.copyProperties(view, petCategory);
-                views.add(view);
-            }
-        }
-        return Response.getSuccess(views);
+        listParam.setType(request.getType());
+        return Response.getSuccess(petCategoryService.list(listParam));
     }
 }
